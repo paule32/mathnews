@@ -31,20 +31,36 @@ void MainWindow::on_pushButton_10_clicked()
     socket.write(ba.data(),ba.length());
     
     qDebug() << "www";
+    
+    client = new MyTcpClient;
+    client->setSocket();
 }
 
 void MainWindow::on_pushButton_clicked()
 {
-    if (ui->pushButton->text() == "Connect")
-    {   ui->pushButton->setText("DissConnect");
-
+    if (server == nullptr) {
         server = new MyTcpServer;
-        server->doConnect(this);
+        server->startServer();
+        
+        if (server->tcpServer->isListening()) {
+            ui->pushButton->setText("DissConnect");
+            ui->logBox->addItem("Server started!");
+        }
+        else {
+            ui->pushButton->setText("Connect");
+            ui->logBox->addItem(
+            "Error: Server could not start.");
+            delete server;
+            server = nullptr;
+        }
     }
     else {
+        server->tcpServer->close();
+        
         ui->pushButton->setText("Connect");
-        ui->logBox->addItem("Server disconnected!");
-        server->close();
+        ui->logBox->addItem("Server offline.");
+        
         delete server;
+        server = nullptr;
     }
 }

@@ -10,22 +10,18 @@
 #include "mainwindow.h"
 
 class MainWindow;
-class MyTcpServer : public QTcpServer
+class MyTcpServer : public QObject
 {
     Q_OBJECT
 public:
     explicit MyTcpServer(QObject *parent = 0);
-    void doConnect(MainWindow *win);
-        
-protected:
-    void incomingConnection(qintptr socketDescriptor);    
+    void startServer();
     
-signals:
+private slots:
+    void incomingConnection();
     
-public slots:
-    
-private:
-
+public:
+    QTcpServer * tcpServer = nullptr;
 };
 
 #endif // MYTCPSERVER_H

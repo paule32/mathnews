@@ -2,6 +2,8 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+
+#include "mytcpclient.h"
 #include "mytcpserver.h"
 
 namespace Ui {
@@ -23,7 +25,9 @@ private slots:
     void on_pushButton_10_clicked();
     
 public:
-    MyTcpServer * server;
+    MyTcpServer * server = nullptr;
+    MyTcpClient * client = nullptr;
+    
     Ui::MainWindow *ui;
 };
 

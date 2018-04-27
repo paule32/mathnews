@@ -4,29 +4,27 @@
 #include <QObject>
 #include <QtNetwork/QTcpSocket>
 #include <QtNetwork/QAbstractSocket>
-#include <QThreadPool>
+#include <QDataStream>
 #include <QDebug>
 
 #include "mytask.h"
 
-class MyClient : public QObject
+class MyTcpClient : public QObject
 {
     Q_OBJECT
 public:
-    explicit MyClient(QObject *parent = 0);
-    void setSocket(qintptr Descriptor);
+    explicit MyTcpClient(QObject *parent = 0);
+    void setSocket(void);
 
 signals:
 
 public slots:
-    void connected();
-    void disconnected();
+    void displayError(QAbstractSocket::SocketError socketError);
     void readyRead();
 
-    void TaskResult(void);
-
 public:
-    QTcpSocket *socket;
+    QTcpSocket * tcpSocket = nullptr;
+    QDataStream in;
 
 };
 
