@@ -1,0 +1,9 @@
+<RCC>
+    <qresource prefix="/">
+        <file>cursor.png</file>
+        <file>mask_cursor.png</file>
+        <file>mask_touch.png</file>
+        <file>touch.png</file>
+        <file>touch2.png</file>
+    </qresource>
+</RCC>

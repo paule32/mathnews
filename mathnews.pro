@@ -1,10 +1,9 @@
 #-------------------------------------------------
-#
-# Project created by QtCreator 2018-04-26T23:16:29
-#
+# (c) 2018 Jens Kallup
+# all rights reserved.
 #-------------------------------------------------
 
-QT       += core gui widgets network
+QT       += core gui widgets network sql
 
 TARGET = mathnews
 TEMPLATE = app
@@ -16,13 +15,24 @@ SOURCES += \
         mainwindow.cc \
     mytcpserver.cc \
     mytcpclient.cc \
-    mytask.cc
+    mytask.cc \
+    dbmanager.cc \
+    mathesymbole.cc \
+    symbolinputbox.cc
 
 HEADERS += \
         mainwindow.h \
     mytcpserver.h \
     mytcpclient.h \
-    mytask.h
+    mytask.h \
+    dbmanager.h \
+    mathesymbole.h \
+    symbolinputbox.h
 
 FORMS += \
         mainwindow.ui
+
+RESOURCES += \
+    resources.qrc
+
+LIBS += -L../build-calcparser-Desktop_Qt_5_10_0_GCC_64bit-Debug -lcalcparser -ly

@@ -46,22 +46,4 @@ void MyTcpServer::incomingConnection()
             
     client->write(ba);
     client->disconnectFromHost();
-    
-    qDebug() << "Server: " << ba;
-
-#if 0    
-    MyClient *client = new MyClient(this);
-    client->setSocket(socketDescriptor);
-    
-    ba  = client->socket->read(20);
-    str = ba.data();
-    
-    qDebug() << "server: " << str << ba;
-    if (str == "QUIT") {
-        ba = "205 closing connection";
-        client->socket->write(ba);
-        client->socket->close();
-        qDebug() << "quiter close";
-    }
-#endif
 }

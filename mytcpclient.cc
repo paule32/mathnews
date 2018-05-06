@@ -32,11 +32,11 @@ void MyTcpClient::readyRead()
     
     QString input;
     in >> input;
+    
+    qDebug() << "client: " << input;
 
     if (!in.commitTransaction())
     return;
-    
-    qDebug() << "client: " << input;
 }
 
 void MyTcpClient::displayError(QAbstractSocket::SocketError socketError)
