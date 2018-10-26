@@ -3,36 +3,44 @@
 # all rights reserved.
 #-------------------------------------------------
 
-QT       += core gui widgets network sql
+QT       += core gui widgets network sql webenginewidgets
 
 TARGET = mathnews
 TEMPLATE = app
 
+CONFIG += c++14 debug
+
 DEFINES += QT_DEPRECATED_WARNINGS
 
 SOURCES += \
-        main.cc \
-        mainwindow.cc \
-    mytcpserver.cc \
-    mytcpclient.cc \
-    mytask.cc \
-    dbmanager.cc \
+    main.cc \
+    mainwindow.cc \
     mathesymbole.cc \
-    symbolinputbox.cc
+    symbolinputbox.cc \
+    mathwebpage.cpp \
+    mathgetposts.cpp \
+    strom.cpp
 
 HEADERS += \
-        mainwindow.h \
-    mytcpserver.h \
-    mytcpclient.h \
-    mytask.h \
-    dbmanager.h \
+    mainwindow.h \
     mathesymbole.h \
-    symbolinputbox.h
+    symbolinputbox.h \
+    mathgetposts.h \
+    mathwebpage.h \
+    strom.h \
+    simulatorvisitor.h \
+    downvisitor.h \
+    visitorcommando.h \
+    visitorenergie.h \
+    slamp.h \
+    visitorwire.h \
+    visitorlamp.h \
+    connection.h
 
 FORMS += \
-        mainwindow.ui
+    mainwindow.ui
 
 RESOURCES += \
     resources.qrc
 
-LIBS += -L../build-calcparser-Desktop_Qt_5_10_0_GCC_64bit-Debug -lcalcparser -ly
+LIBS += -L. -lcrypto -lssl -lcalcparser -ly

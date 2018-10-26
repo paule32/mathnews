@@ -5,33 +5,42 @@
 #include <QBitmap>
 #include <QCursor>
 
-#include <QSqlQuery>
-#include <QSqlRecord>
-
 #include <QMessageBox>
+#include <QJsonDocument>
+
+#include <QtWebEngineWidgets/QWebEngineView>
+#include <QtWebEngineWidgets/QWebEnginePage>
+#include <QtWebEngineWidgets/QWebEngineProfile>
+
 #include <QDebug>
 
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
-#include "dbmanager.h"
-#include "mytcpclient.h"
 #include "symbolinputbox.h"
+#include "mathgetposts.h"
 
-struct news {
+#include "strom.h"
+
+static struct news {
     int post_new;
     int post_old;
     QTreeWidgetItem * item;
     QString text;
 } news_items[] = {
-    5, 0, nullptr, "text1",
-    6, 0, nullptr, "text2",
-    7, 0, nullptr, "text3",
-    8, 5, nullptr, "re: text1",
-    9, 5, nullptr, "re: text11",
-   10, 7, nullptr, "resssst",
-    0, 0, 0      , 0
+    {5, 0, nullptr, "text1"},
+    {6, 0, nullptr, "text2"},
+    {7, 0, nullptr, "text3"},
+    {8, 5, nullptr, "re: text1"},
+    {9, 5, nullptr, "re: text11"},
+   {10, 7, nullptr, "resssst"},
+    {0, 0, nullptr, nullptr}
 };
+
+void MainWindow::downProgress(int progress)
+{
+    ui->progressBar->setValue(progress);
+}
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -40,11 +49,37 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->setupUi(this);
     win = this;
     
+    ui->progressBar->setMinimum(0  );
+    ui->progressBar->setMaximum(100);
+    ui->progressBar->setValue  (0  );
+
     QPixmap pix(":/cursor.png","PNG");
     pix.setMask(QBitmap(QPixmap(":/mask_cursor.png","PNG")));
     QCursor crs_normal(pix,9,9);    
     QApplication::setOverrideCursor(crs_normal);
-    
+
+    web_profile = new QWebEngineProfile(ui->pageWidget);
+    web_profile->setPersistentCookiesPolicy(QWebEngineProfile::NoPersistentCookies);
+
+    web_profile->setHttpCacheType(QWebEngineProfile::NoCache);
+    web_profile->setHttpCacheMaximumSize(0);
+    web_profile->setHttpUserAgent("dBase4Linux/1.0.0 (KALLUP; non-profit)");
+
+    web_view = new QWebEngineView(ui->pageWidget);
+    web_page = new MathWebPage(web_profile, ui->pageWidget);
+
+    connect(web_view,
+            &QWebEngineView::loadProgress, this,
+            &MainWindow::downProgress);
+
+    connect(web_view,
+            &QWebEngineView::loadFinished, this,
+            &MainWindow::downProgressEnd);
+
+
+//    web_page->load(QUrl("https://www.google.de"));
+//    web_view->setPage()
+
     ui->symbolWidget->init();
     ui->inputBox->init();
     
@@ -149,7 +184,11 @@ MainWindow::MainWindow(QWidget *parent) :
 MainWindow::~MainWindow()
 {
     QApplication::restoreOverrideCursor();
-    delete database;
+
+    delete web_page;
+    delete web_view;
+    delete web_profile;
+
     delete ui;
 }
 
@@ -167,47 +206,10 @@ void MainWindow::on_comboBox_activated(const QString &arg1)
 
 void MainWindow::readTcpData()
 {
-    QByteArray data = socket->readAll();
-    qDebug() << "FS: " << data;
 }
 
 void MainWindow::on_sendButton_clicked()
 {
-    QTcpSocket *socket;
-    QByteArray ba;
-
-    ba = "QUIT";
-    
-    socket = new QTcpSocket(this);
-    connect( socket, SIGNAL(readyRead()), SLOT(readTcpData()) );
-    socket->connectToHost("127.0.0.1",6161);
-    
-    if (socket->waitForConnected()) {
-        socket->write(ba);
-    }
-    
-    qDebug() << "www";
-    
-    if (ui->replyEditLine->text().trimmed().length() < 1
-    ||  ui->replyEditLine->text().trimmed().length() > 100) {
-        ui->replyEditLine->setText("<no reply text>");
-        qDebug() << "invalid reply text.";
-    }
-    
-    DbManager * db = new DbManager(QApplication::applicationDirPath());
-    if (!db->addNewThread(
-            ui->replyEditLine->text(),
-            date.toString(),
-            time.toString(),
-            ui->inputBox->document()->toRawText(),
-            thread_id))
-    {        
-        QMessageBox::warning(this,
-        "Error !!!",
-        "Database entry could not update.");
-        delete db; return;
-    }   delete db;
-    
     ui->sendButton->setEnabled(false);
     
     auto * re_thread = new QTreeWidgetItem ;
@@ -231,31 +233,7 @@ void MainWindow::on_sendButton_clicked()
 
 void MainWindow::on_pushButton_clicked()
 {
-    if (server == nullptr) {
-        server = new MyTcpServer;
-        server->startServer();
-        
-        if (server->tcpServer->isListening()) {
-            ui->pushButton->setText("DissConnect");
-            ui->logBox->addItem("Server started!");
-        }
-        else {
-            ui->pushButton->setText("Connect");
-            ui->logBox->addItem(
-            "Error: Server could not start.");
-            delete server;
-            server = nullptr;
-        }
-    }
-    else {
-        server->tcpServer->close();
-        
-        ui->pushButton->setText("Connect");
-        ui->logBox->addItem("Server offline.");
-        
-        delete server;
-        server = nullptr;
-    }
+
 }
 
 void MainWindow::on_actionExit_triggered()
@@ -329,4 +307,54 @@ extern void start_calculation(void);
 void MainWindow::on_solveButton_clicked()
 {
     start_calculation();
+}
+
+void MainWindow::on_actioncatch_triggered()
+{
+}
+
+void MainWindow::downProgressEnd(bool)
+{
+    QTextEdit *ba_text = new QTextEdit(nullptr);
+
+    web_page->toPlainText([ba_text](const QString &str) {
+        if (str.length() > 0) {
+            QFile file("data.dat");
+            if (!file.open(QIODevice::WriteOnly)) {
+                QMessageBox::critical(win,
+                "System Error !!!",
+                "Could not save: 'data.dat'\n"
+                "No data is stored!");
+                return;
+            }
+            QTextStream out(&file);
+            out << str;
+
+            file.flush();
+            file.close();
+        }
+    });
+
+    QFile file("data.dat");
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        QMessageBox::critical(this,
+        "System Error !!!",
+        "Could not load storage file: 'data.dat'.");
+        return;
+    }
+
+    QByteArray content = file.readAll();
+    file.close();
+
+    QJsonDocument document = QJsonDocument::fromJson(content);
+    QJsonObject   object   = document.object();
+
+    QJsonValue  value_area = object.value("area");
+    qDebug() << value_area.toString();
+}
+
+void MainWindow::on_pushButton_2_clicked()
+{
+    web_page->getPosts();
+    //Strom * s = new Strom;
 }

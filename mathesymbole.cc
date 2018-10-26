@@ -11,6 +11,9 @@
 #include <QAbstractItemModel>
 #include <QAbstractTextDocumentLayout>
 #include <QStyleOptionViewItem>
+#include <QMessageBox>
+#include <QDrag>
+#include <QMimeData>
 #include <QBitmap>
 #include <QLabel>
 #include <QTimer>
@@ -20,85 +23,85 @@
 #include "ui_mainwindow.h"
 
 struct matsymbole struct_mathsymbole[] = {
-    1, "&Pi;", "Kreiszahl",
+    {1, "&Pi;", "Kreiszahl"},
 };
 
 struct operatoren struct_operatoren[] = {
-    1, "+", "Plus",
-    2, "-", "Minus",
-    3, "*", "Multiplikation",
-    4, "/", "Division",
-    5, "mod", "Modulo",
-    6, "^2", "Hoch-2 o. Quadrat",
-    7, "neg", "Negation",
+    {1, "+", "Plus"},
+    {2, "-", "Minus"},
+    {3, "*", "Multiplikation"},
+    {4, "/", "Division"},
+    {5, "mod", "Modulo"},
+    {6, "^2", "Hoch-2 o. Quadrat"},
+    {7, "neg", "Negation"}
 };
 
 struct zahlen struct_zahlen[] = {
-    1 , "0", "Null",
-    2 , "1", "Eins",
-    3 , "2", "Zwei",
-    4 , "3", "Drei",
-    5 , "4", "Vier",
-    6 , "5", "Fünf",
-    7 , "6", "Sechs",
-    8 , "7", "Sieben",
-    9 , "8", "Acht",
-    10, "9", "Neun",
+    {1 , "0", "Null"},
+    {2 , "1", "Eins"},
+    {3 , "2", "Zwei"},
+    {4 , "3", "Drei"},
+    {5 , "4", "Vier"},
+    {6 , "5", "Fünf"},
+    {7 , "6", "Sechs"},
+    {8 , "7", "Sieben"},
+    {9 , "8", "Acht"},
+    {10, "9", "Neun"},
 };
 
 struct alpha greek_alpha[] = {
-    1, "Alpha", "Alpha", true,
-    2, "alpha", "Alpha", false,
-    3, "Beta" , "Beta", true,
-    4, "beta" , "beta", false,
-    5, "Gamma", "Gamma", true,
-    6, "gamma", "gamma", false,
-    7, "Delta", "Delta", true,
-    8, "delta", "delta", false,
-    9, "Epsilon", "Epsilon", true,
-    10, "epsilon", "epsilon", false,
-    11, "Zeta", "Zeta", true,
-    12, "zeta", "zeta", false,
-    13, "Eta", "Eta", true,
-    14, "eta", "eta", false,
-    15, "Theta", "Theata", true,
-    16, "theta", "theata", false,
-    17, "Iota", "Iota", true,
-    18, "iota", "iota", false,
-    19, "Kappa", "Kappa", true,
-    20, "kappa", "kappa", false,
-    21, "Lambda", "Lambda", true,
-    22, "lambda", "lambda", false,
-    23, "Mu", "Mu", true,
-    24, "mu", "mu", false,
-    25, "Nu", "Nu", true,
-    26, "nu", "nu", false,
-    27, "Xi", "Xi", true,
-    28, "xi", "xi", false,
-    29, "Omicron", "Omicron", true,
-    30, "omicron", "omicron", false,
-    31, "Pi", "Pi", true,
-    32, "pi", "pi", false,
-    33, "piv", "pi symbol", false,
-    34, "Rho", "Rho", true,
-    35, "rho", "rho", false,
-    36, "Sigma", "Sigma", true,
-    37, "sigma", "sigma", false,
-    38, "sigmaf", "final sigma", true,
-    39, "Tau", "Tau", true,
-    40, "tau", "tau", false,
-    41, "Upsilon", "Upsilon", true,
-    42, "upsilon", "upsilon", false,
-    43, "upsih", "upsilon hook", false,
-    44, "Phi", "Phi", true,
-    45, "phi", "phi", false,
-    46, "Chi", "Chi", true,
-    47, "chi", "chi", false,
-    48, "Psi", "Psi", true,
-    49, "psi", "psi", false,
-    50, "Omega", "Omega", true,
-    51, "omega", "omega", false,
-    52, "thetasym", "theta", false,
+    {1, "Alpha", "Alpha", true},
+    {2, "alpha", "Alpha", false},
+    {3, "Beta" , "Beta", true},
+    {4, "beta" , "beta", false},
+    {5, "Gamma", "Gamma", true},
+    {6, "gamma", "gamma", false},
+    {7, "Delta", "Delta", true},
+    {8, "delta", "delta", false},
+    {9, "Epsilon", "Epsilon", true},
+    {10, "epsilon", "epsilon", false},
+    {11, "Zeta", "Zeta", true},
+    {12, "zeta", "zeta", false},
+    {13, "Eta", "Eta", true},
+    {14, "eta", "eta", false},
+    {15, "Theta", "Theata", true},
+    {16, "theta", "theata", false},
+    {17, "Iota", "Iota", true},
+    {18, "iota", "iota", false},
+    {19, "Kappa", "Kappa", true},
+    {20, "kappa", "kappa", false},
+    {21, "Lambda", "Lambda", true},
+    {22, "lambda", "lambda", false},
+    {23, "Mu", "Mu", true},
+    {24, "mu", "mu", false},
+    {25, "Nu", "Nu", true},
+    {26, "nu", "nu", false},
+    {27, "Xi", "Xi", true},
+    {28, "xi", "xi", false},
+    {29, "Omicron", "Omicron", true},
+    {30, "omicron", "omicron", false},
+    {31, "Pi", "Pi", true},
+    {32, "pi", "pi", false},
+    {33, "piv", "pi symbol", false},
+    {34, "Rho", "Rho", true},
+    {35, "rho", "rho", false},
+    {36, "Sigma", "Sigma", true},
+    {37, "sigma", "sigma", false},
+    {38, "sigmaf", "final sigma", true},
+    {39, "Tau", "Tau", true},
+    {40, "tau", "tau", false},
+    {41, "Upsilon", "Upsilon", true},
+    {42, "upsilon", "upsilon", false},
+    {43, "upsih", "upsilon hook", false},
+    {44, "Phi", "Phi", true},
+    {45, "phi", "phi", false},
+    {46, "Chi", "Chi", true},
+    {47, "chi", "chi", false},
+    {48, "Psi", "Psi", true},
+    {49, "psi", "psi", false},
+    {50, "Omega", "Omega", true},
+    {51, "omega", "omega", false},
+    {52, "thetasym", "theta", false},
 };
 
 MatheSymbole * mathsym = nullptr;
@@ -116,7 +119,7 @@ QString SymbolItemDelegate::anchorAt(QString html, const QPoint &point) const {
     doc.setHtml(html);
 
     auto textLayout = doc.documentLayout();
-    Q_ASSERT(textLayout != 0);
+    Q_ASSERT(textLayout != nullptr);
     return textLayout->anchorAt(point);
 }
 
@@ -160,6 +163,7 @@ MatheSymbole::MatheSymbole(QWidget * parent)
     mathsym = this;
 }
 
+MatheSymbole::~MatheSymbole() { }
 void MatheSymbole::init()
 {
     auto symbolItemDelegate = new SymbolItemDelegate(this);
@@ -290,6 +294,7 @@ void MatheSymbole::init_zahlen()
 
 void MatheSymbole::mouseReleaseEvent(QMouseEvent *event)
 {
+    Q_UNUSED(event);
     if (win->ui->inputBox->underMouse())
     qDebug() << "relller: ";
 }
@@ -361,10 +366,24 @@ void MatheSymbole::oncellPress(int row, int col)
     if (cell_row - 1 >= 0)
     {   cell_row = cell_row - 1;
         QString kg;
-        
+
+        QDrag *drag = new QDrag(this);
+        QMimeData *mimeData = new QMimeData;
+                
         if (ACTIVE_SYMBOL_PAGE == 1) {
             kg = struct_zahlen[cell_row].name;
             selected_symbol = struct_zahlen[cell_row].id;
+            
+            mimeData->setText(struct_zahlen[cell_row].name);
+            drag->setMimeData(mimeData);
+            
+            Qt::DropAction dropAction = drag->exec();
+            Q_UNUSED(dropAction);
+            SymbolInputBox *ptr;
+
+            if (dynamic_cast<SymbolInputBox*>(drag->target()) == ptr) {
+                QMessageBox::information(this,"wsdwwe","dsederer");
+            }
         }
         else if (ACTIVE_SYMBOL_PAGE == 2) {
             if (greek_alpha[cell_row].grade == true)

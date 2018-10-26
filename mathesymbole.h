@@ -63,7 +63,10 @@ public:
         if(parent.isValid()) return 0;
         return 1;
     }
-    int columnCount(const QModelIndex &parent = QModelIndex()) const { return 1; }
+    int columnCount(const QModelIndex &parent = QModelIndex()) const {
+        Q_UNUSED(parent);
+        return 1;
+    }
  
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const {
         Q_UNUSED(index);
@@ -76,7 +79,8 @@ public:
 class MatheSymbole : public QTableWidget
 {
 public:
-    explicit MatheSymbole(QWidget * parent = 0);
+    explicit MatheSymbole(QWidget * parent = nullptr);
+    virtual ~MatheSymbole();
     
     void init(void);
     void init_zahlen(void);
@@ -92,6 +96,7 @@ public:
 protected:
     virtual void dropEvent(QDropEvent *event);
     virtual void dragMoveEvent(QDragMoveEvent *event);
+//  virtual void mousePressEvent(QMouseEvent *event);
     virtual void mouseReleaseEvent(QMouseEvent *event);
 };
 

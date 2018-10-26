@@ -9,16 +9,12 @@
 #include <QLabel>
 #include <QMovie>
 
-#include "dbmanager.h"
-
-#include "mytcpclient.h"
-#include "mytcpserver.h"
+#include "mathwebpage.h"
 
 namespace Ui {
 class MainWindow;
 }
 
-class MyTcpServer;
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
@@ -38,16 +34,16 @@ private slots:
     void on_postTreeWidget_itemPressed(QTreeWidgetItem *item, int column);
     void on_replyButton_clicked();
     
-    void on_solveButton_clicked();
-    
+    void on_solveButton_clicked();    
+    void on_actioncatch_triggered();
+    void on_pushButton_2_clicked();
+
+protected slots:
+    void downProgress(int progress);
+    void downProgressEnd(bool);
+
 public:
-    MyTcpServer * server = nullptr;
-    MyTcpClient * client = nullptr;
-    
     QTreeWidgetItem * item;
-    QTcpSocket * socket = nullptr;
-    
-    DbManager  * database = nullptr;
     
     QDate date;
     QTime time;
@@ -55,6 +51,11 @@ public:
     QString title;
     QString thread_string;
     QString thread_id;
+
+    QWebEngineProfile * web_profile = nullptr;
+    QWebEngineView    * web_view    = nullptr;
+
+    MathWebPage       * web_page    = nullptr;
         
     Ui::MainWindow *ui;
 };
